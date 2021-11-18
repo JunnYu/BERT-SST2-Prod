@@ -22,8 +22,9 @@
     - [3.11 模型训练对齐](#3.11)
     - [3.12 单机多卡训练](#3.12)
 - [4. 论文复现注意事项与FAQ](#4)
-    - [4.1 通用注意事项](#4.1)
-    - [4.2 模型结构对齐](#4.2)
+    - [4.0 通用注意事项](#4.0)
+    - [4.1 模型结构对齐](#4.1)
+    - [4.2 验证/测试集数据读取对齐](#4.2)
     - [4.3 评估指标对齐](#4.3)
     - [4.4 损失函数对齐](#4.4)
     - [4.5 优化器对齐](#4.5)
@@ -771,8 +772,8 @@ python -m paddle.distributed.launch --gpus "0,1,2,3" run_glue.py \
 
 本部分主要总结大家在论文复现赛过程中遇到的问题，如果本章内容没有能够解决你的问题，欢迎给该文档提出优化建议或者给Paddle提[ISSUE](https://github.com/PaddlePaddle/Paddle/issues/new/choose)。
 
-<a name="4.1"></a>
-### 4.1 通用注意事项
+<a name="4.0"></a>
+### 4.0 通用注意事项
 
 * 需要仔细对照PaddlePaddle与参考代码的优化器参数实现，确保优化器参数严格对齐。
 * 如果遇到一些Paddle不支持的API操作，可以尝试使用替代实现进行复现。如下面的PyTorch代码，PaddlePaddle中可以通过slice + concat API的组合形式进行功能实现。同时，对于这个问题，建议优先给Paddle提[ISSUE](https://github.com/PaddlePaddle/Paddle/issues/new/choose)，列出Paddle不支持的实现，开发人员会根据优先级进行开发。
@@ -792,26 +793,30 @@ torch.stack([
 * 对于PaddlePaddle来说，通过`paddle.set_device`函数（全局）来确定模型结构是运行在什么设备上，对于torch来说，是通过`model.to("device")` （局部）来确定模型结构的运行设备，这块在复现的时候需要注意。
 
 
-<a name="4.2"></a>
-### 4.2 模型结构对齐
+<a name="4.1"></a>
+### 4.1 模型结构对齐
 
-#### 4.2.1 API
+#### 4.1.1 API
 * 对于 `paddle.nn.Linear` 层的weight参数，PaddlePaddle与PyTorch的保存方式不同，在转换时需要进行转置，示例代码可以参考[BERT权重转换脚本](https://github.com/JunnYu/BERT-SST2-Prod/blob/main/pipeline/weights/torch2paddle.py)。
 * `torch.masked_fill`函数的功能目前可以使用`paddle.where`进行实现，可以参考：[链接](https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/faq/train_cn.html#paddletorch-masked-fillapi)。
 * `pack_padded_sequence`和`pad_packed_sequence`这两个API目前PaddlePaddle中没有实现，可以直接在RNN或者LSTM的输入中传入`sequence_length`来实现等价的功能。
 
 
-#### 4.2.2 权重转换
+#### 4.1.2 权重转换
 
 * 在权重转换的时候，不能只关注参数的名称，比如说有些`paddle.nn.Linear`层，但是定义的变量名称为`conv`，这种也是需要进行权重转置的。
 * 权重转换时，建议同时打印 Paddle 和 PyTorch 对应权重的shape，以防止名称相似但是shape不同的参数权重转换报错。
 
-#### 4.2.3 模型组网正确性验证
+#### 4.1.3 模型组网正确性验证
 
 * 在论文复现的过程中，可能会遇到一些经典的模型结构，比如Transformer等，Paddle官方也提供了Transformer的实现，但是这里建议自己根据PyTorch代码重新实现一遍，一方面是对整体的模型结构更加熟悉，另一方面也保证模型结构和权重完全对齐。
 * 在复杂的网络结构中，如果前向结果对不齐，可以按照模块排查问题，比如依次获取embedding、transformer-block、mlm-head输出等，看下问题具体出现在哪个子模块，再进到子模块详细排查。
 * 网络结构对齐后，尽量使用训练好的预训练模型和真实的数据进行前向diff计算，这样更准确。
 
+<a name="4.2"></a>
+### 4.2 验证/测试集数据读取对齐
+
+* 需要仔细排查数据预处理，不仅包含的预处理方法相同，也需要保证预处理的流程相同，比如先padding策略不同和截断策略的不同会导致得到最终的结果是不同的。
 
 <a name="4.3"></a>
 ### 4.3 评估指标对齐
