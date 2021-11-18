@@ -14,8 +14,8 @@ from transformers import DataCollatorWithPadding
 
 
 def build_paddle_data_pipeline():
-    def read_csv():
-        df = pd.read_csv("demo_sst2_sentence/demo.tsv", sep="\t")
+    def read(data_path):
+        df = pd.read_csv(data_path, sep="\t")
         for _, row in df.iterrows():
             yield {"sentence": row["sentence"], "labels": row["label"]}
 
@@ -33,7 +33,8 @@ def build_paddle_data_pipeline():
     # load tokenizer
     tokenizer = PPNLPBertTokenizer.from_pretrained("bert-base-uncased")
     # load data
-    dataset_test = ppnlp_load_dataset(read_csv, lazy=False)
+    dataset_test = ppnlp_load_dataset(
+        read, data_path='demo_sst2_sentence/demo.tsv', lazy=False)
     trans_func = partial(convert_example, tokenizer=tokenizer, max_length=128)
     # tokenize data
     dataset_test = dataset_test.map(trans_func, lazy=False)
