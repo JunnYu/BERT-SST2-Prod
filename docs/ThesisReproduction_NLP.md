@@ -386,7 +386,7 @@ BERT模型复现过程中，数据预处理和Dataset、Dataloader的检查可�
 
 **【基本流程】**
 
-PaddlePaddle提供了一系列Metric计算类，比如说`Accuracy`, `Auc`, `Precision`, `Recall`等，而PyTorch中，目前可以通过组合的方式实现metric计算，或者调用[huggingface-daasets](https://huggingface.co/docs/datasets/about_metrics.html?highlight=metric)，在论文复现的过程中，需要注意保证对于该模块，给定相同的输入，二者输出完全一致。具体流程如下。
+PaddlePaddle提供了一系列Metric计算类，比如说`Accuracy`, `Auc`, `Precision`, `Recall`等，而PyTorch中，目前可以通过组合的方式实现metric计算，或者调用[huggingface-datasets](https://huggingface.co/docs/datasets/about_metrics.html?highlight=metric)，在论文复现的过程中，需要注意保证对于该模块，给定相同的输入，二者输出完全一致。具体流程如下。
 
 1. 构建fake数据
 1. 使用PyTorch的指标获取评估结果，使用reprod_log保存结果。
