@@ -55,7 +55,7 @@
 * 准备好fake input data以及label，与模型输入shape、type等保持一致，用于后续模型前向对齐。
     * 在对齐模型前向过程中，我们不需要考虑数据集模块等其他模块，此时使用fake data是将模型结构和数据部分解耦非常合适的一种方式。
     * 将fake data以文件的形式存储下来，也可以保证PaddlePaddle与参考代码的模型结构输入是完全一致的，更便于排查问题。
-    * 在该步骤中，以AlexNet为例，生成fake data的脚本可以参考：[gen_fake_data.py](https://github.com/JunnYu/BERT-SST2-Prod/blob/main/pipeline/fake_data/gen_fake_data.py)。
+    * 在该步骤中，以BERT为例，生成fake data的脚本可以参考：[gen_fake_data.py](https://github.com/JunnYu/BERT-SST2-Prod/blob/main/pipeline/fake_data/gen_fake_data.py)。
 * 在特定设备(CPU/GPU)上，跑通参考代码的预测过程(前向)以及至少2轮(iteration)迭代过程，保证后续基于PaddlePaddle复现论文过程中可对比。
 * 本文档基于 `BERT-SST2-Prod` 代码以及`reprod_log` whl包进行说明与测试。如果希望体验，建议参考[BERT-SST2-Prod文档](https://github.com/JunnYu/BERT-SST2-Prod/blob/main/README.md)进行安装与测试。
 * 在复现的过程中，只需要将PaddlePaddle的复现代码以及打卡日志上传至github，不能在其中添加参考代码的实现，在验收通过之后，需要删除打卡日志。建议在初期复现的时候，就将复现代码与参考代码分成2个文件夹进行管理。
@@ -173,7 +173,7 @@ BERT-SST2-Prod项目提供了基于reprod_log的5个验收点对齐验收示例�
 
 **【实战】**
 
-AlexNet网络结构的PyTorch实现: [transformers-bert](https://github.com/littletomatodonkey/AlexNet-Prod/blob/master/piphttps://github.com/huggingface/transformers/blob/master/src/transformers/models/bert/modeling_bert.py)
+BERT网络结构的PyTorch实现: [transformers-bert](https://github.com/huggingface/transformers/blob/master/src/transformers/models/bert/modeling_bert.py)
 
 对应转换后的PaddlePaddle实现: [paddlenlp-bert](https://github.com/PaddlePaddle/PaddleNLP/blob/develop/paddlenlp/transformers/bert/modeling.py)
 
@@ -325,7 +325,7 @@ if __name__ == "__main__":
 
 **【实战】**
 
-AlexNet模型组网正确性验证可以参考如下示例代码：
+BERT模型组网正确性验证可以参考如下示例代码：
 [https://github.com/JunnYu/BERT-SST2-Prod/tree/main/pipeline/Step1](https://github.com/JunnYu/BERT-SST2-Prod/tree/main/pipeline/Step1
 
 **【验收】**
